@@ -1,0 +1,3 @@
+services:
+    dating.crawler:
+        class: 'AppBundle\Service\CrawlerService'

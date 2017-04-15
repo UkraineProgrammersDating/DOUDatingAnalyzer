@@ -2,6 +2,8 @@
 
 namespace AppBundle\Service;
 
+use Symfony\Component\DomCrawler\Crawler;
+
 class CrawlerService
 {
     /**
@@ -18,8 +20,16 @@ class CrawlerService
         $this->cacheService = $cacheService;
     }
 
-    public function get()
+    public function parse($url)
     {
-        $this->cacheService->get('https://dou.ua/forums/topic/16490/');
+        $html = $this->cacheService->get($url);
+
+        if (empty($html)) {
+            $html = file_get_contents($url);
+
+            $this->cacheService->set($url, $html);
+        }
+
+        return new Crawler($html);
     }
 }

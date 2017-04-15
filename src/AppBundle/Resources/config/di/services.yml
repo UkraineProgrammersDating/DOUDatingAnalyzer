@@ -1,3 +1,10 @@
 services:
+    dating.cache:
+        class: 'AppBundle\Service\CacheService'
+        arguments:
+            - '%kernel.cache_dir%'
+
     dating.crawler:
         class: 'AppBundle\Service\CrawlerService'
+        arguments:
+            - '@dating.cache'

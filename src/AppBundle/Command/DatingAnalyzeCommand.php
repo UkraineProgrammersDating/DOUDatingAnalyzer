@@ -15,7 +15,7 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getContainer()->get('dating.crawler');
+        $this->getContainer()->get('dating.crawler')->get();
 
         $output->writeln('<info>Complete</info>');
     }

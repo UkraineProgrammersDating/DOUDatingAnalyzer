@@ -22,6 +22,13 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
         $output->writeln($crawler->filter('title')->html());
 
+        $profiles = $crawler->filter('a.avatar');
+
+        $profile = $profiles->first();
+
+        $output->writeln(trim($profile->text()));
+        $output->writeln($profile->attr('href'));
+
         $output->writeln('<info>Complete</info>');
     }
 }

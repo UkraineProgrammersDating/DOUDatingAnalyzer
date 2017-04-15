@@ -3,6 +3,7 @@
 namespace AppBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DomCrawler\Crawler;
@@ -55,6 +56,12 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
         $count = count($socialProfiles);
         $output->writeln("<info>Found social profiles: $count</info>");
+
+        $table = new Table($output);
+        $table
+            ->setHeaders(['name', 'url'])
+            ->setRows($socialProfiles);
+        $table->render();
 
         $output->writeln('<info>Complete</info>');
     }

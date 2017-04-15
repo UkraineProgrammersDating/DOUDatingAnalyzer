@@ -5,6 +5,7 @@ namespace AppBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DomCrawler\Crawler;
 
 class DatingAnalyzeCommand extends ContainerAwareCommand
 {
@@ -22,12 +23,19 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
         $output->writeln($crawler->filter('title')->html());
 
-        $profiles = $crawler->filter('a.avatar');
+        $allProfiles = $crawler->filter('a.avatar')->each(function (Crawler $profile) {
+            return [
+                'name' => trim($profile->text()),
+                'url' => $profile->attr('href'),
+            ];
+        });
 
-        $profile = $profiles->first();
+        $count = count($allProfiles);
+        $output->writeln("<info>Found all profiles: $count</info>");
 
-        $output->writeln(trim($profile->text()));
-        $output->writeln($profile->attr('href'));
+        $profiles = array_column($allProfiles, null, 'url');
+        $count = count($profiles);
+        $output->writeln("<info>Found unique profiles: $count</info>");
 
         $output->writeln('<info>Complete</info>');
     }

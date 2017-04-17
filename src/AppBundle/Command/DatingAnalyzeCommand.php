@@ -27,7 +27,9 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
             $output->writeln($topicCrawler->filter('title')->html());
 
-            $allProfiles = $topicCrawler->filter('a.avatar')->each(function (Crawler $profile) {
+            $commentators = $topicCrawler->filter('a.avatar');
+
+            $allProfiles = $commentators->each(function (Crawler $profile) {
                 return [
                     'name' => trim($profile->text()),
                     'url' => $profile->attr('href'),
@@ -51,7 +53,11 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
                 foreach ($socials as $url) {
                     if (strpos($url, 'vk.com')) {
-                        $socialProfiles[] = $profile;
+                        $socialProfiles[$profile['url']] = [
+                            'name' => $profile['name'],
+                            'url' => $profile['url'],
+                            'vk' => $url,
+                        ];
                     }
                 }
             }
@@ -61,8 +67,45 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
             $table = new Table($output);
             $table
-                ->setHeaders(['name', 'url'])
+                ->setHeaders(['name', 'url', 'vk'])
                 ->setRows($socialProfiles);
+            $table->render();
+
+            $commentatorCommentsMap = [];
+
+            /* @var $commentator Crawler */
+            $commentatorCount = $commentators->count();
+            for ($i = 1; $i < $commentatorCount; ++$i) {
+                $commentator = $commentators->eq($i);
+                $url = $commentator->attr('href');
+
+                if (isset($socialProfiles[$url])) {
+                    try {
+                        $commentatorCommentsMap[$url][] = $commentator
+                            ->parents()
+                            ->eq(1)
+                            ->filter('.text p')
+                            ->html();
+                    } catch (\Exception $e) {
+                    }
+                }
+            }
+
+            $rows = [];
+            foreach ($commentatorCommentsMap as $url => $comments) {
+                $vk = $socialProfiles[$url]['vk'];
+                foreach ($comments as $comment) {
+                    $rows[] = [
+                        'vk' => $vk,
+                        'comment' => $comment,
+                    ];
+                }
+            }
+
+            $table = new Table($output);
+            $table
+                ->setHeaders(['vk', 'comment'])
+                ->setRows($rows);
             $table->render();
 
             $output->writeln('<info>Complete</info>');

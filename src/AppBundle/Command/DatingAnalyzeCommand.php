@@ -20,6 +20,9 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
         $topics = [
             'https://dou.ua/forums/topic/16490/',
             'https://dou.ua/forums/topic/15063/',
+            'https://dou.ua/forums/topic/14836/',
+            'https://dou.ua/forums/topic/12622/',
+            'https://dou.ua/forums/topic/10453/',
         ];
 
         $visitedProfiles = [];

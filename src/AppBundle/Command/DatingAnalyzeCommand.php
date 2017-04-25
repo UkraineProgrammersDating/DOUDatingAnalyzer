@@ -17,7 +17,13 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $topics = ['https://dou.ua/forums/topic/16490/'];
+        $topics = [
+            'https://dou.ua/forums/topic/16490/',
+            'https://dou.ua/forums/topic/15063/',
+        ];
+
+        $visitedProfiles = [];
+
         foreach ($topics as $topic) {
             $crawlerService = $this
                 ->getContainer()
@@ -42,6 +48,10 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
             $profiles = array_column($allProfiles, null, 'url');
             $count = count($profiles);
             $output->writeln("<info>Found unique profiles: $count</info>");
+
+            $profiles = array_diff_key($profiles, $visitedProfiles);
+            $count = count($profiles);
+            $output->writeln("<info>Found new profiles: $count</info>");
 
             $socialProfiles = [];
             foreach ($profiles as $profile) {
@@ -71,7 +81,12 @@ class DatingAnalyzeCommand extends ContainerAwareCommand
                 ->setRows($socialProfiles);
             $table->render();
 
-            $output->writeln('<info>Complete</info>');
+            $visitedProfiles = array_merge(
+                $visitedProfiles,
+                array_fill_keys(array_keys($profiles), true)
+            );
+
+            $output->writeln("<info>Complete</info>: $topic");
         }
     }
 }
